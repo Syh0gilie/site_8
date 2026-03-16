@@ -66,8 +66,8 @@
 <body>
     <div class="map-container">
         <div id="svg-container">
-            <!-- Corrected path for static site -->
-            <img src="static/images/map_bg.png" class="map-bg">
+            <!-- Fix: Correct relative path for static site -->
+            <img src="static/map_bg.png" class="map-bg">
             <div id="interactive-layer" class="svg-layer"></div>
         </div>
     </div>
@@ -83,6 +83,10 @@
     </div>
 
     <script>
+        // Detect base path for GitHub Pages (handles subfolder site_8)
+        const isGitHubPages = window.location.hostname.includes('github.io');
+        const basePath = isGitHubPages ? '/site_8/' : '';
+
         // Use v2 or v3 as preferred
         fetch('static/map_v2.svg')
             .then(res => res.text())
@@ -117,7 +121,8 @@
 
                             const photoImg = document.getElementById('modal-photo');
                             if (lore.photo_url) {
-                                photoImg.src = lore.photo_url;
+                                // Fix photo path for GitHub Pages subfolder
+                                photoImg.src = basePath + lore.photo_url;
                                 photoImg.style.display = 'block';
                             } else {
                                 photoImg.style.display = 'none';
