@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8 Марта - Карта</title>
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .map-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #svg-container {
+            width: 1152px;
+            height: 927px;
+            position: relative;
+            background-color: white;
+            /* Helpful for debugging */
+        }
+
+        /* The background map image */
+        .map-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* The interactive SVG layer */
+        .svg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+
+        .svg-layer svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .modal-simple {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 2px solid #333;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="map-container">
+        <div id="svg-container">
+            <img src="{% static 'images/map_bg.png' %}" class="map-bg">
+            <div id="interactive-layer" class="svg-layer"></div>
+        </div>
+    </div>
+
+    <!-- Enhanced Modal -->
+    <div class="modal-simple" id="modal">
+        <div id="modal-content" style="max-width: 400px; text-align: center;">
+            <img id="modal-photo" src=""
+                style="width: 100%; border-radius: 10px; margin-bottom: 15px; display: none; object-fit: cover; object-position: top; max-height: 400px;">
+            <h2 id="modal-name" style="margin-bottom: 10px; color: #333;"></h2>
+            <p id="modal-msg"
+                style="text-align: justify; line-height: 1.5; font-size: 0.95rem; color: #555; height: 150px; overflow-y: auto; padding-right: 5px;">
+            </p>
+            <button onclick="document.getElementById('modal').style.display='none'"
+                style="margin-top: 15px; padding: 10px 20px; background: #333; color: white; border: none; border-radius: 5px; cursor: pointer;">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        fetch('/static/map_v3.svg')
+            .then(res => res.text())
+            .then(data => {
+                const container = document.getElementById('interactive-layer');
+                container.innerHTML = data;
+
+                // Ensure the SVG fills the layer
+                const svg = container.querySelector('svg');
+                if (svg) {
+                    svg.setAttribute('width', '100%');
+                    svg.setAttribute('height', '100%');
+                }
+
+                // Target regions only (IDs starting with _)
+                const regions = container.querySelectorAll('[id^="_"]');
+                console.log("Found " + regions.length + " regions.");
+
+                regions.forEach(r => {
+                    // Skip generic layers (Russian 'Слой')
+                    if (r.id.includes('Слой') || r.id.includes('\u0421\u043b\u043e\u0439')) {
+                        console.log("Skipping non-region element: " + r.id);
+                        r.style.pointerEvents = 'none';
+                        return;
+                    }
+                    console.log("Initializing region: " + r.id);
+                    r.style.cursor = 'pointer';
+                    r.style.pointerEvents = 'all';
+                    r.onclick = (e) => {
+                        e.stopPropagation();
+                        const sid = r.id;
+                        console.log("Region clicked: " + sid);
+                        fetch(`/greeting/${sid}/`)
+                            .then(res => res.json())
+                            .then(data => {
+                                document.getElementById('modal-name').innerText = data.first_name || sid;
+                                document.getElementById('modal-msg').innerText = data.message || "Поздравление!";
+
+                                const photoImg = document.getElementById('modal-photo');
+                                if (data.photo_url) {
+                                    photoImg.src = data.photo_url;
+                                    photoImg.style.display = 'block';
+                                } else {
+                                    photoImg.style.display = 'none';
+                                }
+
+                                document.getElementById('modal').style.display = 'block';
+                            })
+                            .catch(err => console.error("Error fetching greeting:", err));
+                    };
+                });
+            })
+            .catch(err => console.error("Error loading SVG:", err));
+    </script>
+</body>
+
+</html>
