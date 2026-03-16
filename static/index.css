@@ -1,0 +1,316 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Lora:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;600&display=swap');
+
+:root {
+    /* Premium Palette 6.0 */
+    --glass-bg: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #2d2d2d;
+    --accent-color: #8b4513;
+    --overlay-base: rgba(0, 0, 0, 0.75);
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Lora', serif;
+
+    /* Map Base Dimensions */
+    --map-base-w: 1152px;
+    --map-base-h: 927px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    width: 100vw;
+    font-family: 'Outfit', sans-serif;
+    background: linear-gradient(135deg, #f5eadd 0%, #d7c4b1 100%);
+    background-attachment: fixed;
+    overflow: hidden;
+    /* Prevent body scrolling */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 
+   MAP CONTAINER 6.0
+   On mobile, this becomes a scrollable viewport for panning.
+*/
+.map-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    /* No scrollbars, we scale instead */
+    background: #1a1a1a;
+    position: relative;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.map-container::-webkit-scrollbar {
+    display: none;
+}
+
+#svg-container {
+    width: var(--map-base-w);
+    height: var(--map-base-h);
+    position: relative;
+    background: #1a1a1a;
+    border-radius: 40px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+    /* Important: don't let it shrink */
+}
+
+/* 
+   DYNAMIC SCALING (Unified)
+   We scale the map to fit perfectly within the viewport on all devices.
+*/
+#svg-container {
+    transform: scale(min(calc(98vw / 1152), calc(98vh / 927)));
+    transform-origin: center center;
+}
+
+@media (min-width: 1200px) and (min-height: 1000px) {
+    #svg-container {
+        transform: scale(1);
+    }
+}
+
+.map-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    background: #fdf5e6;
+    border-radius: 40px;
+}
+
+.svg-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+}
+
+.svg-layer svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* 
+   MODAL OVERLAY
+*/
+.modal-simple {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--overlay-base) !important;
+    backdrop-filter: blur(12px) brightness(0.35) saturate(2) contrast(1.2);
+    -webkit-backdrop-filter: blur(12px) brightness(0.35) saturate(2) contrast(1.2);
+    z-index: 1000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-simple[style*="display: block"] {
+    display: flex !important;
+    opacity: 1;
+}
+
+#modal-content {
+    background: var(--glass-bg);
+    border-radius: 48px;
+    padding: 60px 45px;
+    width: 100%;
+    max-width: 440px;
+    max-height: 90vh;
+    text-align: center;
+    color: var(--text-primary);
+    box-shadow: 0 50px 150px rgba(0, 0, 0, 0.6);
+    position: relative;
+    /* FIX: Remove horizontal scrollbar */
+    overflow-x: hidden;
+    overflow-y: initial;
+    animation:
+        popIn 0.8s cubic-bezier(0.19, 1, 0.22, 1),
+        levitate 6s ease-in-out infinite 0.8s;
+}
+
+/* Mobile Adjustments for Modal */
+@media (max-width: 480px) {
+    #modal-content {
+        padding: 40px 25px;
+        border-radius: 32px;
+    }
+
+    #modal-name {
+        font-size: 1.8rem !important;
+    }
+
+    #modal-msg {
+        font-size: 1rem !important;
+        height: auto;
+        max-height: 250px;
+    }
+
+    #modal-photo {
+        max-height: 250px;
+    }
+}
+
+/* Decorative Ornaments */
+#modal-content::before {
+    content: "❦";
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    color: var(--accent-color);
+    opacity: 0.3;
+}
+
+#modal-content::after {
+    content: "❧";
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    color: var(--accent-color);
+    opacity: 0.3;
+}
+
+#modal-photo {
+    width: 100%;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    object-fit: cover;
+    object-position: top;
+    max-height: 400px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    border: 6px solid #fff;
+}
+
+#modal-name {
+    margin-bottom: 5px;
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    letter-spacing: -0.5px;
+    font-style: italic;
+    line-height: 1.1;
+}
+
+#modal-name::after {
+    content: "";
+    display: block;
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+    margin: 20px auto 30px auto;
+    opacity: 0.5;
+}
+
+#modal-msg {
+    text-align: justify;
+    line-height: 1.9;
+    font-family: var(--font-body);
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    max-height: 200px;
+    overflow-y: auto;
+    /* FIX: Hide the horizontal scrollbar if it appears due to vertical scrollbar width */
+    overflow-x: hidden;
+    padding: 0 20px;
+}
+
+/* MAGAZINE-STYLE DROP CAP */
+#modal-msg::first-letter {
+    float: left;
+    font-family: var(--font-heading);
+    font-size: 4rem;
+    line-height: 0.7;
+    padding: 12px 14px 0 0;
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+#modal-msg::-webkit-scrollbar {
+    width: 3px;
+}
+
+#modal-msg::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 10px;
+}
+
+/* Button */
+#modal-content button {
+    margin-top: 35px;
+    padding: 16px 50px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+#modal-content button:hover {
+    background: #000;
+    transform: translateY(-3px);
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(40px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes levitate {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+/* Interaction */
+[id^="_"]:hover {
+    filter: brightness(1.2);
+    transition: filter 0.3s ease;
+    cursor: pointer;
+}
