@@ -88,7 +88,7 @@
         const basePath = isGitHubPages ? '/site_8/' : '';
 
         // Use v2 or v3 as preferred
-        fetch('static/map_v2.svg')
+        fetch(basePath + 'static/map_v2.svg')
             .then(res => res.text())
             .then(data => {
                 const container = document.getElementById('interactive-layer');
@@ -127,7 +127,8 @@
                             } else {
                                 photoImg.style.display = 'none';
                             }
-                            document.getElementById('modal').style.display = 'flex';
+                            // Fix: Use 'block' to match CSS selector [style*="display: block"]
+                            document.getElementById('modal').style.display = 'block';
                         }
                     };
                 });
