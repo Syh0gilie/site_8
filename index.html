@@ -87,8 +87,8 @@
         const isGitHubPages = window.location.hostname.includes('github.io');
         const basePath = isGitHubPages ? '/site_8/' : '';
 
-        // Use v2 or v3 as preferred
-        fetch(basePath + 'static/map_v2.svg')
+        // Use map_v3 for better polygon interactivity
+        fetch(basePath + 'static/map_v3.svg')
             .then(res => res.text())
             .then(data => {
                 const container = document.getElementById('interactive-layer');
