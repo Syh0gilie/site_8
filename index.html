@@ -102,7 +102,14 @@
 
                 const regions = container.querySelectorAll('[id^="_"]');
                 regions.forEach(r => {
-                    // Skip layers
+                    // Hide Слой_4 specifically as requested
+                    if (r.id.includes('Слой_4') || r.id.includes('\u0421\u043b\u043e\u0439_4')) {
+                        r.style.display = 'none';
+                        r.style.pointerEvents = 'none';
+                        return;
+                    }
+
+                    // Skip other layers
                     if (r.id.includes('Слой') || r.id.includes('\u0421\u043b\u043e\u0439')) {
                         r.style.pointerEvents = 'none';
                         return;
